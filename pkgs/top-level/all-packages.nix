@@ -28482,7 +28482,7 @@ with pkgs;
 
   qjackctl = libsForQt5.callPackage ../applications/audio/qjackctl { };
 
-  qimgv = libsForQt5.callPackage ../applications/graphics/qimgv { };
+  qimgv = libsForQt6.callPackage ../applications/graphics/qimgv { };
 
   qlandkartegt = libsForQt514.callPackage ../applications/misc/qlandkartegt {
     gdal = gdal.override {
