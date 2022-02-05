@@ -1,61 +1,62 @@
-{ buildPythonPackage, python, fetchurl, lib, stdenv,
-  cmake, ninja, qt6, shiboken6 }:
+{ buildPythonPackage
+, python
+, pythonPackages
+, fetchurl
+, lib
+, cmake
+, ninja
+, qt6
+, shiboken6
+, llvmPackages_13
+}:
 
 let
-  pnameCamel = "PySide6";
+  llvmPackages = llvmPackages_13;
+  stdenv = llvmPackages.stdenv;
 in
 
 stdenv.mkDerivation rec {
   pname = "pyside6";
-  version = "6.2.0";
+  version = "6.2.2";
 
   src = fetchurl {
-    url = "https://download.qt.io/official_releases/QtForPython/${pname}/${pnameCamel}-${version}-src/pyside-setup-opensource-src-${version}.tar.xz";
-    sha256 = "/tIQtmISmVUzLSYJqQC1uGQxMBNORoI3GyapumB0DQE=";
-  };
-
-  srcShiboken = fetchurl {
-    url = "https://download.qt.io/official_releases/QtForPython/${pname}/shiboken6-${version}-${version}-cp36.cp37.cp38.cp39.cp310-abi3-manylinux1_x86_64.whl";
-    sha256 = "3OO0NNXRvlC4kgeZZHu7I0bf2TMb+SJCUSgIUCAJfLg=";
+    url = "https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-${version}-src/pyside-setup-opensource-src-${version}.tar.xz";
+    sha256 = "cKdMfHyeWvRsrlsZQ7w5oTmcQzKzQtLEgQOhz+mYkag=";
   };
 
   patches = [
-    #./dont_ignore_optional_modules.patch
+    ./dont_ignore_optional_modules.patch
   ];
 
   postPatch = ''
-    echo postPatch
-    ls
-    #ls sources
-    #stat ${srcShiboken}
-
-    ls
-    find . -name setup.py
-
-    #cd sources/${pname}
+    cd sources/${pname}
   '';
 
-  configurePhase = ":";
-
-  buildPhase = ''
-    ${python.interpreter} setup.py build
-  '';
-
-  installPhase = ''
-    ${python.interpreter} setup.py install
-  '';
+  CLANG_INSTALL_DIR = llvmPackages.libclang.lib;
 
   cmakeFlags = [
     "-DBUILD_TESTS=OFF"
-    "-DPYTHON_EXECUTABLE=${python.interpreter}"
   ];
 
-  nativeBuildInputs = [ cmake ninja qt6.qmake python ];
-  buildInputs = with qt6; [
-    qtbase qtmultimedia qttools qtlocation
-    qtwebsockets qtwebengine qtwebchannel qtcharts qtsensors qtsvg
+  #QT_LOGGING_RULES = "*.debug=true"; # debug
+
+  #ninjaFlags = [ "-j1" ]; # debug: disable parallel build
+
+  nativeBuildInputs = [ ninja python ];
+
+  buildInputs = (with pythonPackages; [
+    packaging
+    numpy
+  ]) ++ [
+    llvmPackages.libclang
+    llvmPackages.libllvm
+    python
+    shiboken6
   ];
-  propagatedBuildInputs = [ shiboken6 ];
+
+  propagatedBuildInputs = [
+    qt6.qtbase
+  ];
 
   dontWrapQtApps = true;
 

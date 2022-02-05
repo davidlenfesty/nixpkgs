@@ -1,5 +1,19 @@
-{ buildPythonPackage, python, fetchurl, lib, stdenv, pyside6
-, cmake, qt6, llvmPackages }:
+{ buildPythonPackage
+, python
+, fetchurl
+, lib
+, pyside6
+, cmake
+, qt6
+, llvmPackages_13
+}:
+
+# sphinx-build - not found! doc target disabled
+
+let
+  llvmPackages = llvmPackages_13;
+  stdenv = llvmPackages.stdenv;
+in
 
 stdenv.mkDerivation rec {
   pname = "shiboken6";
@@ -7,21 +21,29 @@ stdenv.mkDerivation rec {
   inherit (pyside6) version src;
 
   patches = [
-    #./nix_compile_cflags.patch
+    ./nix_compile_cflags.patch
   ];
 
   postPatch = ''
     cd sources/${pname}
   '';
 
-  CLANG_INSTALL_DIR = llvmPackages.libclang.out;
+  CLANG_INSTALL_DIR = llvmPackages.libclang.lib;
 
   nativeBuildInputs = [ cmake ];
-  buildInputs = [ llvmPackages.libclang python qt6.qtbase ];
+
+  buildInputs = [
+    llvmPackages.libclang
+    llvmPackages.libllvm
+    python
+    qt6.qtbase
+  ];
 
   cmakeFlags = [
     "-DBUILD_TESTS=OFF"
   ];
+
+  #QT_LOGGING_RULES = "*.debug=true"; # debug
 
   dontWrapQtApps = true;
 
