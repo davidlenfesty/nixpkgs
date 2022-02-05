@@ -19798,6 +19798,9 @@ with pkgs;
   qt6Env = qt6.env;
   qt6Full = qt6.full;
 
+  # TODO(milahu) remove. only for testing
+  qt6-pyside-test = callPackage ../development/python-modules/pyside6/test.nix { };
+
   qtscriptgenerator = callPackage ../development/libraries/qtscriptgenerator { };
 
   quark-engine = callPackage ../tools/security/quark-engine { };
