@@ -42,7 +42,7 @@ stdenv.mkDerivation rec {
 
   #ninjaFlags = [ "-j1" ]; # debug: disable parallel build
 
-  nativeBuildInputs = [ ninja python ];
+  nativeBuildInputs = [ cmake ninja python ];
 
   buildInputs = (with pythonPackages; [
     packaging
