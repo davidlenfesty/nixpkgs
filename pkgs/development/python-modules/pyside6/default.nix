@@ -55,7 +55,7 @@ stdenv.mkDerivation rec {
   ];
 
   propagatedBuildInputs = [
-    qt6.qtbase
+    qt6.qtbase qt6.qtsvg
   ];
 
   dontWrapQtApps = true;
